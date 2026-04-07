@@ -1,0 +1,44 @@
+<!-- SAVE AS: ups-sizing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UPS Sizing Workbench</title>
+  <link rel="stylesheet" href="ups-sizing.css">
+</head>
+<body>
+
+<h1>UPS Sizing Workbench</h1>
+
+<div>
+  <label>System Voltage (V):</label>
+  <input id="voltage" value="480">
+</div>
+
+<div>
+  <label>Target Runtime (min):</label>
+  <input id="runtime" value="15">
+</div>
+
+<button onclick="addRow()">Add Load</button>
+<button onclick="calculate()">Calculate</button>
+
+<table id="table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Current (A)</th>
+      <th>PF</th>
+      <th>Demand</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<h2>Results</h2>
+<div id="results"></div>
+
+<script src="ups-sizing.js"></script>
+</body>
+</html>
