@@ -92,6 +92,16 @@ h1 { margin: 0; font-size: clamp(1.9rem, 3vw, 2.8rem); }
 }
 .hero-card { padding: 18px; }
 .hero-card.slim { display: grid; align-content: center; min-height: 145px; }
+.nav-search { margin-bottom: 16px; }
+.nav-search input {
+  width: 100%;
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.05);
+  color: var(--text);
+}
+.group-nav { display: grid; gap: 12px; margin-top: 12px; }
 .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .pill, .tag {
   display: inline-flex;

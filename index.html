@@ -13,10 +13,10 @@
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div>
-        <div class="eyebrow">NEC + Electronics + Controls</div>
-        <h1>EE Toolbox Pro</h1>
-        <p class="lead">A practical engineering toolbox with code-style sizing, electronics design helpers, visual plots, and PLC logic simulators.</p>
+      <div class="brand-unit">
+        <div class="eyebrow">EE Toolbox Pro</div>
+        <h1>Engineering Workstation</h1>
+        <p class="lead">A premium browser-based platform for NEC sizing, power systems, electronics design, and PLC logic training.</p>
       </div>
       <div class="topbar-actions">
         <button id="themeToggle" class="ghost-btn" type="button">Switch Theme</button>
@@ -25,43 +25,48 @@
     </header>
 
     <section class="hero-grid">
-      <article class="hero-card">
+      <article class="hero-card hero-main">
         <div class="pill-row">
-          <span class="pill">Deployable static site</span>
-          <span class="pill">Task-first navigation</span>
-          <span class="pill">Explanations built in</span>
+          <span class="pill">NEC-focused workflows</span>
+          <span class="pill">Power system visuals</span>
+          <span class="pill">PLC training bench</span>
         </div>
         <h2 id="sectionTitle">Electrical Code</h2>
-        <p id="sectionSubtitle">Sizing packages and practical field outputs with clear reasoning.</p>
+        <p id="sectionSubtitle">NEC-style circuit sizing, path checks, grounding, and practical design notes.</p>
       </article>
-      <article class="hero-card slim">
+      <article class="hero-card slim stat-card">
         <div class="stat-label">Saved Projects</div>
         <div id="savedCount" class="stat-value">0</div>
-        <div class="muted">Tools can save and reload inputs in your browser.</div>
+        <div class="muted">Restore tool inputs and keep design context across visits.</div>
       </article>
-      <article class="hero-card slim">
+      <article class="hero-card slim stat-card">
         <div class="stat-label">Available Tools</div>
         <div id="toolCount" class="stat-value">0</div>
-        <div class="muted">NEC, electronics, visualization, and controls.</div>
+        <div class="muted">NEC, power, electronics, controls, visuals, and references.</div>
       </article>
     </section>
 
-    <nav id="sectionNav" class="section-nav" aria-label="Sections"></nav>
-
-    <main class="workspace-grid">
-      <aside class="sidebar card">
-        <div class="card-head">
-          <h3>Tools</h3>
-          <span id="toolFamilyTag" class="tag">Electrical Code</span>
+    <div class="workspace-grid">
+      <aside class="sidebar card nav-panel">
+        <div class="nav-search">
+          <input id="toolSearch" type="search" placeholder="Search tools, formulas, topics" autocomplete="off" />
         </div>
+        <div id="sectionNav" class="section-nav" aria-label="Sections"></div>
+        <div id="groupNav" class="group-nav"></div>
         <div id="toolNav" class="tool-nav"></div>
       </aside>
 
       <section class="main-stage">
         <article class="card intro-card">
           <div class="card-head">
-            <h3 id="toolTitle">Branch Circuit Sizer</h3>
-            <span id="toolBadge" class="tag">Explainer included</span>
+            <div>
+              <h3 id="toolTitle">Branch Circuit Sizer</h3>
+              <p id="toolBadge" class="tag">Explainer included</p>
+            </div>
+            <div class="tool-context">
+              <div class="context-pill">Active tool</div>
+              <div class="context-pill" id="toolFamilyTag">Electrical Code</div>
+            </div>
           </div>
           <div class="explain-grid">
             <div>
@@ -91,15 +96,8 @@
         </div>
         <div id="reportList" class="report-list"></div>
       </aside>
-    </main>
-  </div>
-
-  <template id="twoColTemplate">
-    <div class="tool-grid">
-      <div class="input-card"></div>
-      <div class="output-card"></div>
     </div>
-  </template>
+  </div>
 
   <script src="./app.js"></script>
 </body>

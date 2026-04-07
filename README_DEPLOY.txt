@@ -34,3 +34,9 @@ Notes:
 - Saved tool inputs use browser localStorage.
 - Export State downloads a JSON snapshot of the saved local data.
 - NEC-related outputs are planning-level helpers and still require final verification.
+
+What’s in this version:
+- Electrical Code: Branch Circuit Sizer, Transformer Package, Voltage Drop, Parallel Wire Gauge
+- Power & 3-Phase: Power Triangle visualizer, 3-Phase Phasor Plotter, Harmonic Spectrum Viewer
+- Electronics: Resistor Color Code, SMD Resistor Code, Series / Parallel Resistor Network, Voltage Divider, RC Filter Designer, LED Series Resistor, 555 Astable Timer, Op-Amp Gain Helper, Capacitor Code Decoder, Inductor Code Decoder, PCB Trace Width / Current, ADC / DAC Helper, Logic Gate Explorer
+- Controls & PLC: Flex Logic Simulator, Ladder Logic Simulator with seal-in motor rung, timer, counter, and rung explanation

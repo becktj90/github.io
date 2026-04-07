@@ -23,17 +23,34 @@ const MULTIPLIER = { black:1,brown:10,red:100,orange:1e3,yellow:1e4,green:1e5,bl
 const TOL = { brown:'±1%', red:'±2%', green:'±0.5%', blue:'±0.25%', violet:'±0.1%', gray:'±0.05%', gold:'±5%', silver:'±10%' };
 
 const sections = [
-  { id:'code', title:'Electrical Code', subtitle:'Sizing packages and practical field outputs with clear reasoning.', tools:['branch-circuit','transformer-package'] },
-  { id:'power', title:'Power & 3-Phase', subtitle:'Voltage, phasors, harmonics, and visual power relationships.', tools:['voltage-drop','power-triangle','phasor-plotter','harmonic-spectrum'] },
-  { id:'electronics', title:'Electronics', subtitle:'Bench calculators, component decoders, filter design, and board-level helpers.', tools:['resistor-color','smd-code','series-parallel','voltage-divider','rc-filter','led-resistor','timer-555','opamp-gain','capacitor-code','inductor-code','pcb-trace','parallel-wire'] },
-  { id:'controls', title:'Controls & PLC', subtitle:'Boolean logic, ladder simulation, timers, counters, and training-style interaction.', tools:['flex-logic','ladder-sim'] },
-  { id:'reference', title:'Reference', subtitle:'Saved states and export tools for iterative engineering work.', tools:['project-manager'] }
+  { id:'code', title:'Electrical Code', subtitle:'NEC-compliant sizing and field-ready circuit packages.', groups:[
+      { id:'sizing', title:'Circuit & Transformer Sizing', tools:['branch-circuit','transformer-package','parallel-wire'] },
+      { id:'path', title:'Path & Voltage Drop', tools:['voltage-drop'] }
+    ]
+  },
+  { id:'power', title:'Power Systems', subtitle:'System conversions, phasors, and waveform analysis.', groups:[
+      { id:'conversion', title:'Power & Phasors', tools:['power-triangle','phasor-plotter','harmonic-spectrum'] }
+    ]
+  },
+  { id:'electronics', title:'Electronics', subtitle:'Component decoding, circuit helpers, and board-level design tools.', groups:[
+      { id:'decoders', title:'Component Decoders', tools:['resistor-color','smd-code','capacitor-code','inductor-code'] },
+      { id:'circuits', title:'Circuit & Signal Helpers', tools:['series-parallel','voltage-divider','rc-filter','led-resistor','timer-555','opamp-gain','adc-dac','pcb-trace'] }
+    ]
+  },
+  { id:'controls', title:'Controls & PLC', subtitle:'Logic simulation, seal-in circuits, timers, counters, and troubleshooting views.', groups:[
+      { id:'simulation', title:'Simulation Workbench', tools:['flex-logic','ladder-sim'] }
+    ]
+  },
+  { id:'reference', title:'Reference', subtitle:'Saved work and practical engineering notes.', groups:[
+      { id:'saved', title:'Saved Work', tools:['project-manager'] }
+    ]
+  }
 ];
 
 const toolDefs = {
   'branch-circuit': { section:'code', title:'Branch Circuit Sizer', badge:'NEC-style package', what:'Packages continuous and noncontinuous load into a practical branch-circuit design result with conductor, breaker, and EGC suggestions.', why:'This mirrors the way people actually size circuits in the field: not just amps, but the whole package.', how:'Continuous load is counted at 125%, noncontinuous load is added directly, an optional spare margin is applied, then the next suitable copper conductor, breaker, and EGC are selected.', render: renderBranchCircuit },
   'transformer-package': { section:'code', title:'Transformer Package', badge:'Primary + secondary', what:'Builds a transformer sizing package from load data and shows primary and secondary currents with standard kVA selection.', why:'This turns load information into a practical transformer package rather than an isolated kVA number.', how:'The tool computes apparent power from volts and amps, selects the next standard transformer, then calculates primary and secondary current for the chosen phase and voltages.', render: renderTransformerPackage },
-  'voltage-drop': { section:'power', title:'Voltage Drop + Chart', badge:'Visual', what:'Calculates feeder voltage drop and generates a simple visual bar showing source, drop, and delivered voltage.', why:'A quick visual makes it obvious whether the run is comfortably acceptable or getting marginal.', how:'The tool uses standard single-phase or three-phase copper voltage-drop equations and plots the result as proportional bars.', render: renderVoltageDrop },
+  'voltage-drop': { section:'code', title:'Voltage Drop + Chart', badge:'Visual', what:'Calculates feeder voltage drop and generates a simple visual bar showing source, drop, and delivered voltage.', why:'A quick visual makes it obvious whether the run is comfortably acceptable or getting marginal.', how:'The tool uses standard single-phase or three-phase copper voltage-drop equations and plots the result as proportional bars.', render: renderVoltageDrop },
   'power-triangle': { section:'power', title:'Power Triangle', badge:'SVG plot', what:'Turns kW and power factor into kVA, kVAR, and a power triangle graphic.', why:'It makes real, reactive, and apparent power intuitive for troubleshooting and design.', how:'The tool computes apparent power from kW and PF, then derives reactive power with the Pythagorean relationship and draws the triangle.', render: renderPowerTriangle },
   'phasor-plotter': { section:'power', title:'3-Phase Phasor Plotter', badge:'SVG plot', what:'Draws balanced three-phase voltage phasors with user-set magnitude and phase sequence.', why:'A fast phasor picture helps people understand rotation, phase displacement, and where measurements should land.', how:'Each phase is placed 120 electrical degrees apart from the reference and rendered as a vector from the center point.', render: renderPhasorPlotter },
   'harmonic-spectrum': { section:'power', title:'Harmonic Spectrum Viewer', badge:'THD', what:'Plots harmonic magnitudes and calculates THD from user-entered harmonic percentages.', why:'Nonlinear loads are easier to reason through when the distortion is visible instead of buried in a list.', how:'The spectrum is rendered as bars for the fundamental and selected harmonics. THD is calculated from the RMS sum of harmonic percentages relative to the fundamental.', render: renderHarmonicSpectrum },
@@ -48,7 +65,9 @@ const toolDefs = {
   'capacitor-code': { section:'electronics', title:'Capacitor Code Decoder', badge:'Decoder', what:'Decodes 3-digit capacitor markings into capacitance and estimates common unit conversions.', why:'Small capacitors are often marked compactly, so decoding needs to be immediate.', how:'The first two digits are the significant figures and the third digit is the multiplier in pF.', render: renderCapCode },
   'inductor-code': { section:'electronics', title:'Inductor Code Decoder', badge:'Decoder', what:'Decodes common 2-digit + multiplier inductor markings into inductance.', why:'It speeds up bench work when magnetics markings are cryptic or abbreviated.', how:'The first two digits are significant figures and the third is the base-10 multiplier in µH-like code style.', render: renderIndCode },
   'pcb-trace': { section:'electronics', title:'PCB Trace Width / Current', badge:'Board-level', what:'Estimates PCB trace current from width and copper weight, or the required width for a target current and temperature rise.', why:'This is a high-value practical layout check for power distribution on boards.', how:'It uses a simplified IPC-2221-style relationship for external traces as an estimate, not a compliance-grade replacement for detailed layout analysis.', render: renderPcbTrace },
-  'parallel-wire': { section:'electronics', title:'Parallel Wire Gauge', badge:'Equivalent area', what:'Calculates equivalent circular-mil area for parallel conductors and suggests a nearest standard single conductor.', why:'Parallel runs are much easier to compare when converted back to an equivalent conductor size.', how:'The individual conductor circular-mil area is multiplied by the number of parallels, then compared against standard conductor areas.', render: renderParallelWire },
+  'adc-dac': { section:'electronics', title:'ADC / DAC Helper', badge:'Sample / scale', what:'Converts between digital codes and analog voltages for ADC/DAC ranges, showing full-scale and step resolution.', why:'This is useful when interfacing sensors and actuators to microcontrollers or data-acquisition hardware.', how:'It scales the chosen reference voltage and resolution to compute analog value from code or code from analog voltage, with step size and full-scale range.', render: renderAdcDac },
+  'logic-gates': { section:'electronics', title:'Logic Gate Explorer', badge:'Boolean', what:'Shows basic combinational logic gates and a truth table for quick gate-level reasoning.', why:'It helps when designing small logic blocks or debugging gate conditions before moving into HDL or ladder logic.', how:'The tool evaluates standard gates for inputs A and B, then highlights the resulting outputs in a compact truth table.', render: renderLogicGate },
+  'parallel-wire': { section:'code', title:'Parallel Wire Gauge', badge:'Equivalent area', what:'Calculates equivalent circular-mil area for parallel conductors and suggests a nearest standard single conductor.', why:'Parallel runs are much easier to compare when converted back to an equivalent conductor size.', how:'The individual conductor circular-mil area is multiplied by the number of parallels, then compared against standard conductor areas.', render: renderParallelWire },
   'flex-logic': { section:'controls', title:'Flex Logic Simulator', badge:'Function-block style', what:'Builds a practical permissive chain from live input bits and shows the resulting output and Boolean expression.', why:'This makes control logic easier to reason about without needing a full PLC project.', how:'The output is evaluated from a permissive chain with mode, e-stop, overload, start, and auto demand conditions. The explanation updates in plain English.', render: renderFlexLogic },
   'ladder-sim': { section:'controls', title:'Ladder Logic Simulator', badge:'Canvas + timer/counter', what:'Provides an editable ladder training bench with contacts, TON timing, a CTU-style counter, rung power highlighting, and plain-English rung explanations.', why:'It gives you something closer to actual controls troubleshooting than static truth tables.', how:'Each scan evaluates rung continuity, updates a seal-in motor coil, advances a TON timer when its rung is true, increments a counter on rising edges, then redraws the ladder and state table.', render: renderLadderSim },
   'project-manager': { section:'reference', title:'Project Manager', badge:'Local save', what:'Lets you inspect, reload, and clear locally saved tool states.', why:'Iteration matters. Saved inputs make the site feel like a real workstation rather than a disposable calculator page.', how:'Each tool can store its current inputs under its own key in localStorage. This page shows what is available and lets you export or clear it.', render: renderProjectManager }
@@ -56,7 +75,8 @@ const toolDefs = {
 
 let activeTheme = load(THEME_KEY, 'blueprint');
 let activeSection = load(SECTION_KEY, sections[0].id);
-let activeTool = load(TOOL_KEY, sections[0].tools[0]);
+let activeGroup = load('ee-pro-group', sections[0].groups[0].id);
+let activeTool = load(TOOL_KEY, sections[0].groups[0].tools[0]);
 const reportState = [];
 const ladderState = { coil:false, timerAcc:0, timerDone:false, count:0, lastCountIn:false, lastStart:false, bits:{ start:false, stop:false, ol:false, auto:false, demand:false, reset:false } };
 
@@ -77,22 +97,36 @@ function egcForBreaker(b){ return EGC_TABLE.find(([max]) => b <= max)?.[1] || EG
 function describeOhms(ohms){ if (!Number.isFinite(ohms)) return '-'; const a=Math.abs(ohms); if (a>=1e6) return `${fmt(ohms/1e6,3)} MΩ`; if (a>=1e3) return `${fmt(ohms/1e3,3)} kΩ`; return `${fmt(ohms,3)} Ω`; }
 function describeCap(f){ if (!Number.isFinite(f)) return '-'; const a=Math.abs(f); if (a>=1e-3) return `${fmt(f*1e3,3)} mF`; if (a>=1e-6) return `${fmt(f*1e6,3)} µF`; if (a>=1e-9) return `${fmt(f*1e9,3)} nF`; return `${fmt(f*1e12,3)} pF`; }
 function getSection(id){ return sections.find(s=>s.id===id) || sections[0]; }
+function getGroup(section, id){ return section.groups.find(g=>g.id===id) || section.groups[0]; }
+function findToolGroup(toolId){ for (const section of sections){ for (const group of section.groups){ if (group.tools.includes(toolId)) return { section: section.id, group: group.id }; }} return { section: sections[0].id, group: sections[0].groups[0].id }; }
 function report(name, summary){ reportState.unshift({name, summary, ts:new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'})}); reportState.splice(10); renderReport(); }
 function renderReport(){ $('reportList').innerHTML = reportState.length ? reportState.map(item => `<div class="report-item"><strong>${escapeHtml(item.name)}</strong><div>${escapeHtml(item.summary)}</div><div class="muted">${item.ts}</div></div>`).join('') : '<div class="report-item">Run a tool to populate the session ledger.</div>'; }
 function escapeHtml(str){ return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
 function setTheme(theme){ activeTheme = theme; document.body.dataset.theme = theme === 'retro' ? 'retro' : 'blueprint'; save(THEME_KEY, activeTheme); }
-function setSection(id){ activeSection = getSection(id).id; const sec = getSection(activeSection); if (!sec.tools.includes(activeTool)) activeTool = sec.tools[0]; save(SECTION_KEY, activeSection); save(TOOL_KEY, activeTool); renderAll(); }
-function setTool(id){ if (!toolDefs[id]) return; activeTool = id; activeSection = toolDefs[id].section; save(SECTION_KEY, activeSection); save(TOOL_KEY, activeTool); renderAll(); }
+function setSection(id){ const sec = getSection(id); activeSection = sec.id; activeGroup = getGroup(sec, activeGroup).id; const group = getGroup(sec, activeGroup); if (!group.tools.includes(activeTool)) activeTool = group.tools[0]; save(SECTION_KEY, activeSection); save('ee-pro-group', activeGroup); save(TOOL_KEY, activeTool); renderAll(); }
+function setGroup(id){ const sec = getSection(activeSection); const group = getGroup(sec, id); activeGroup = group.id; if (!group.tools.includes(activeTool)) activeTool = group.tools[0]; save('ee-pro-group', activeGroup); save(TOOL_KEY, activeTool); renderAll(); }
+function setTool(id){ if (!toolDefs[id]) return; const found = findToolGroup(id); activeTool = id; activeSection = found.section; activeGroup = found.group; save(SECTION_KEY, activeSection); save('ee-pro-group', activeGroup); save(TOOL_KEY, activeTool); renderAll(); }
 
 function renderNav(){
-  $('sectionNav').innerHTML = sections.map(sec => `<button class="section-btn ${sec.id===activeSection?'active':''}" data-section="${sec.id}">${sec.title}<small>${sec.tools.length} tools</small></button>`).join('');
+  $('sectionNav').innerHTML = sections.map(sec => `<button class="section-btn ${sec.id===activeSection?'active':''}" data-section="${sec.id}">${sec.title}<small>${sec.groups.reduce((sum,group)=>sum+group.tools.length,0)} tools</small></button>`).join('');
   const sec = getSection(activeSection);
-  $('toolNav').innerHTML = sec.tools.map(id => `<button class="tool-btn ${id===activeTool?'active':''}" data-tool="${id}">${toolDefs[id].title}<small>${toolDefs[id].badge}</small></button>`).join('');
+  const group = getGroup(sec, activeGroup);
+  $('groupNav').innerHTML = sec.groups.map(gr => `<button class="section-btn ${gr.id===activeGroup?'active':''}" data-group="${gr.id}">${gr.title}<small>${gr.tools.length} tools</small></button>`).join('');
+  const searchTerm = $('toolSearch')?.value.trim().toLowerCase() || '';
+  let tools = group.tools;
+  if (searchTerm) {
+    tools = sec.groups.flatMap(g => g.tools).filter(id => {
+      const tool = toolDefs[id];
+      return tool.title.toLowerCase().includes(searchTerm) || tool.what.toLowerCase().includes(searchTerm) || tool.badge.toLowerCase().includes(searchTerm);
+    });
+  }
+  $('toolNav').innerHTML = tools.map(id => `<button class="tool-btn ${id===activeTool?'active':''}" data-tool="${id}">${toolDefs[id].title}<small>${toolDefs[id].badge}</small></button>`).join('');
   $('toolCount').textContent = Object.keys(toolDefs).length;
   $('sectionTitle').textContent = sec.title;
   $('sectionSubtitle').textContent = sec.subtitle;
   $('toolFamilyTag').textContent = sec.title;
   document.querySelectorAll('[data-section]').forEach(btn => btn.onclick = () => setSection(btn.dataset.section));
+  document.querySelectorAll('[data-group]').forEach(btn => btn.onclick = () => setGroup(btn.dataset.group));
   document.querySelectorAll('[data-tool]').forEach(btn => btn.onclick = () => setTool(btn.dataset.tool));
 }
 
@@ -485,6 +519,60 @@ function renderPcbTrace(){
   };
 }
 
+function renderAdcDac(){
+  mountTwoCol(`
+    <div class="input-grid cols-4">
+      <div><label>Mode</label><select id="adcMode"><option value="code-to-voltage">Code → Voltage</option><option value="voltage-to-code">Voltage → Code</option></select></div>
+      <div><label>Resolution (bits)</label><input id="adcBits" type="number" value="12"></div>
+      <div><label>Reference voltage (V)</label><input id="adcVref" type="number" value="3.3"></div>
+      <div><label>Code or voltage</label><input id="adcValue" type="number" value="2048"></div>
+    </div>
+    <div class="actions"><button id="adcRun" class="primary-btn">Convert</button></div>
+    <div class="note">Converts between ADC/DAC codes and analog voltages using straight binary scaling and full-scale range.</div>
+  `, `<div id="adcResult" class="result-box">Run the tool to compute step size, full-scale range, and conversion results.</div>`);
+  const collect = () => ({ mode:$('adcMode').value, bits:$('adcBits').value, vref:$('adcVref').value, value:$('adcValue').value });
+  const apply = (s) => { $('adcMode').value=s.mode||'code-to-voltage'; $('adcBits').value=s.bits||12; $('adcVref').value=s.vref||3.3; $('adcValue').value=s.value||''; };
+  document.querySelector('.input-card').appendChild(addSaveLoadBar('adc-dac', collect, apply));
+  $('adcRun').onclick = () => {
+    const mode = $('adcMode').value, bits = Math.max(1, Math.min(24, +$('adcBits').value||12));
+    const vref = Math.max(0.001, +$('adcVref').value||1);
+    const raw = +$('adcValue').value;
+    const maxCode = Math.pow(2, bits) - 1;
+    const step = vref / maxCode;
+    if (mode === 'code-to-voltage') {
+      const code = Math.min(maxCode, Math.max(0, Math.round(raw)));
+      const voltage = code * step;
+      $('adcResult').textContent = `Resolution: ${bits} bits\nFull-scale code: ${maxCode}\nStep size: ${fmt(step*1000,3)} mV\nConverted voltage: ${fmt(voltage,4)} V\n\nReasoning\n- Voltage = code × step\-size\n- Full-scale is ${fmt(vref,4)} V at code ${maxCode}`;
+      report('ADC / DAC Helper', `Code ${code} → ${fmt(voltage,4)} V`);
+    } else {
+      const voltage = Math.min(vref, Math.max(0, raw));
+      const code = Math.round(voltage / step);
+      $('adcResult').textContent = `Resolution: ${bits} bits\nFull-scale code: ${maxCode}\nStep size: ${fmt(step*1000,3)} mV\nConverted code: ${code}\n\nReasoning\n- Code = voltage / step\-size\n- Input voltage limited to 0–${fmt(vref,4)} V`;
+      report('ADC / DAC Helper', `${fmt(voltage,4)} V → code ${code}`);
+    }
+  };
+}
+
+function renderLogicGate(){
+  mountTwoCol(`
+    <div class="input-grid cols-4">
+      <div><label>Input A</label><select id="lgA"><option value="0">0</option><option value="1" selected>1</option></select></div>
+      <div><label>Input B</label><select id="lgB"><option value="0">0</option><option value="1" selected>1</option></select></div>
+    </div>
+    <div class="actions"><button id="lgRun" class="primary-btn">Evaluate Gates</button></div>
+    <div class="note">Shows the outputs for basic gates and highlights the selected input combination in the truth table.</div>
+  `, `<div id="lgResult" class="result-box">Run the gate explorer to view outputs for A and B.</div><div class="chart-wrap"><div id="lgTable"></div></div>`);
+  document.querySelector('.input-card').appendChild(addSaveLoadBar('logic-gates', () => ({ a:$('lgA').value, b:$('lgB').value }), s => { $('lgA').value=s.a||'1'; $('lgB').value=s.b||'1'; }));
+  $('lgRun').onclick = () => {
+    const a = +$('lgA').value, b = +$('lgB').value;
+    const table = [[0,0],[0,1],[1,0],[1,1]].map(([x,y]) => ({ x, y, and: x&&y, or: x||y, nand: !(x&&y), nor: !(x||y), xor: Boolean(x^y), xnor: !(x^y) }));
+    const activeRow = table.find(r=>r.x===a&&r.y===b);
+    $('lgResult').textContent = `Selected inputs: A=${a}, B=${b}\nAND=${activeRow.and?1:0}  OR=${activeRow.or?1:0}  XOR=${activeRow.xor?1:0}\nNAND=${activeRow.nand?1:0}  NOR=${activeRow.nor?1:0}  XNOR=${activeRow.xnor?1:0}`;
+    $('lgTable').innerHTML = `<table class="tableish"><thead><tr><th>A</th><th>B</th><th>AND</th><th>OR</th><th>NAND</th><th>NOR</th><th>XOR</th><th>XNOR</th></tr></thead><tbody>${table.map(row => `<tr style="background:${row.x===a&&row.y===b?'rgba(103,214,255,.12)':''}"><td>${row.x}</td><td>${row.y}</td><td>${row.and?1:0}</td><td>${row.or?1:0}</td><td>${row.nand?1:0}</td><td>${row.nor?1:0}</td><td>${row.xor?1:0}</td><td>${row.xnor?1:0}</td></tr>`).join('')}</tbody></table>`;
+    report('Logic Gate Explorer', `A=${a}, B=${b}, OR=${activeRow.or?1:0}, XOR=${activeRow.xor?1:0}`);
+  };
+}
+
 function renderParallelWire(){
   mountTwoCol(`
     <div class="input-grid cols-3">
@@ -622,4 +710,5 @@ $('exportState').onclick = () => {
 };
 
 setTheme(activeTheme);
+$('toolSearch').oninput = renderNav;
 renderAll();
