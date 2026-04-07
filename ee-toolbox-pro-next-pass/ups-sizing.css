@@ -1,0 +1,22 @@
+/* SAVE AS: ups-sizing.css */
+
+body {
+  font-family: Arial;
+  background: #0b1a2a;
+  color: white;
+  padding: 20px;
+}
+
+input, select {
+  margin: 5px;
+}
+
+table {
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid #444;
+  padding: 8px;
+}
