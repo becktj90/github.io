@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UPS Sizing Workbench</title>
+  <meta name="theme-color" content="#09131d" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./ups-sizing.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">UPS + Battery Systems</div>
+        <h1>UPS Sizing Workbench</h1>
+        <p class="lead">
+          Concept-level Toshiba G9000 sizing, runtime comparison, battery chemistry tradeoff, feeder screening, and engineering explanation.
+        </p>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-btn" href="./index.html">Back to EE Toolbox</a>
+        <button id="exportJsonBtn" class="ghost-btn" type="button">Export JSON</button>
+        <button id="downloadReportBtn" class="ghost-btn" type="button">Download Report</button>
+      </div>
+    </header>
+
+    <section class="hero-grid">
+      <article class="hero-card">
+        <div class="pill-row">
+          <span class="pill">480 V default</span>
+          <span class="pill">3Φ / 3W+G</span>
+          <span class="pill">Dual-fed basis</span>
+          <span class="pill">Expandable explanations</span>
+        </div>
+        <h2>Project Inputs + Load Schedule</h2>
+        <p class="muted">
+          Enter current-based three-phase loads, classify them by behavior, and compare required battery size versus expected runtime.
+        </p>
+      </article>
+      <article class="hero-card slim">
+        <div class="stat-label">Saved Projects</div>
+        <div id="savedCount" class="stat-value">0</div>
+        <div class="muted">Stored locally in browser storage.</div>
+      </article>
+      <article class="hero-card slim">
+        <div class="stat-label">Standard Frames</div>
+        <div class="stat-value">7</div>
+        <div class="muted">100 / 160 / 225 / 300 / 500 / 750 / 1050 kVA</div>
+      </article>
+    </section>
+
+    <main class="workspace-grid single-page-grid">
+      <section class="main-stage full-width">
+
+        <article class="card intro-card">
+          <div class="card-head">
+            <h3>What this page does</h3>
+            <span class="tag">Explainer included</span>
+          </div>
+          <div class="explain-grid">
+            <div>
+              <div class="explain-label">What</div>
+              <p>Calculates base and adjusted UPS load, recommends a standard frame, compares VRLA and LTO assumptions, and provides planning-level feeder / OCPD / rigid conduit outputs.</p>
+            </div>
+            <div>
+              <div class="explain-label">Why</div>
+              <p>UPS sizing depends on kVA, kW, runtime energy, power factor, load behavior, and margin. This page keeps those drivers visible.</p>
+            </div>
+            <div class="full-span">
+              <div class="explain-label">How</div>
+              <p>Each load row is converted into kVA and kW, then adjusted by demand, category factor, and spare margin. Battery sizing is then computed from real load, runtime, UPS efficiency, and chemistry assumptions.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="section-head">
+            <h3>Learn More</h3>
+            <span class="tag">Expandable engineering context</span>
+          </div>
+
+          <details class="microcopy" open>
+            <summary>Why UPS sizing is not just adding current</summary>
+            <p>
+              Current determines apparent power, but runtime comes from real power and stored energy. The inverter must carry kVA while the battery must sustain kW over time.
+            </p>
+          </details>
+
+          <details class="microcopy">
+            <summary>Why nonlinear loads need overhead</summary>
+            <p>
+              Electronic and rectifier-style loads can stress the UPS differently than smooth linear loads. The nonlinear factor is an engineering margin to reflect that behavior.
+            </p>
+          </details>
+
+          <details class="microcopy">
+            <summary>Why motor and inductive loads are treated separately</summary>
+            <p>
+              Inductive loads can bring reactive behavior, dynamic voltage sensitivity, and restart concerns. Even with steady-state current input, concept sizing often needs additional margin.
+            </p>
+          </details>
+
+          <details class="microcopy">
+            <summary>Why runtime depends on chemistry assumptions</summary>
+            <p>
+              Nominal battery energy is not the same as usable delivered energy. Usable fraction, aging allowance, reserve margin, and UPS efficiency all affect installed battery size.
+            </p>
+          </details>
+
+          <details class="microcopy">
+            <summary>Why conductor and conduit outputs are labeled preliminary</summary>
+            <p>
+              Final feeder sizing depends on the adopted code edition, ambient, conductor type, adjustment factors, terminations, grounding details, fault current, and manufacturer instructions. This page is for concept design and planning.
+            </p>
+          </details>
+        </article>
+
+        <article class="card">
+          <div class="section-head">
+            <h3>Project Basis</h3>
+          </div>
+          <div class="tool-grid">
+            <div class="input-card">
+              <div class="input-grid">
+                <div class="field">
+                  <label for="projectName">Project Name</label>
+                  <input id="projectName" type="text" value="Example Facility UPS Study">
+                </div>
+                <div class="field">
+                  <label for="engineerName">Engineer / Estimator</label>
+                  <input id="engineerName" type="text" value="Engineering">
+                </div>
+                <div class="field">
+                  <label for="systemVoltage">System Voltage L-L (V)</label>
+                  <input id="systemVoltage" type="number" value="480">
+                </div>
+                <div class="field">
+                  <label for="systemFreq">Frequency (Hz)</label>
+                  <input id="systemFreq" type="number" value="60">
+                </div>
+                <div class="field">
+                  <label for="systemPhases">Phases</label>
+                  <select id="systemPhases">
+                    <option value="3" selected>3</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="batteryMode">Battery Mode</label>
+                  <select id="batteryMode">
+                    <option value="runtimeToBattery" selected>Runtime → required battery size</option>
+                    <option value="batteryToRuntime">Battery size → expected runtime</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="targetRuntimeMin">Target Runtime (min)</label>
+                  <input id="targetRuntimeMin" type="number" value="15">
+                </div>
+                <div class="field">
+                  <label for="availableBatteryKwh">Available Battery (kWh)</label>
+                  <input id="availableBatteryKwh" type="number" value="100">
+                </div>
+                <div class="field">
+                  <label for="upsEff">UPS Efficiency</label>
+                  <input id="upsEff" type="number" step="0.001" value="0.97">
+                </div>
+                <div class="field">
+                  <label for="spareFactor">Global Spare Margin</label>
+                  <input id="spareFactor" type="number" step="0.01" value="1.10">
+                </div>
+                <div class="field">
+                  <label for="continuousFactor">Continuous Multiplier</label>
+                  <input id="continuousFactor" type="number" step="0.01" value="1.25">
+                </div>
+                <div class="field">
+                  <label for="includeGround">Include Ground Conductor</label>
+                  <select id="includeGround">
+                    <option selected>Yes</option>
+                    <option>No</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="output-card">
+              <div class="input-grid">
+                <div class="field">
+                  <label for="factorLinear">Linear Factor</label>
+                  <input id="factorLinear" type="number" step="0.01" value="1.00">
+                </div>
+                <div class="field">
+                  <label for="factorNonlinear">Nonlinear Factor</label>
+                  <input id="factorNonlinear" type="number" step="0.01" value="1.15">
+                </div>
+                <div class="field">
+                  <label for="factorMotor">Motor Factor</label>
+                  <input id="factorMotor" type="number" step="0.01" value="1.20">
+                </div>
+
+                <div class="field">
+                  <label for="vrlaUsable">VRLA Usable Fraction</label>
+                  <input id="vrlaUsable" type="number" step="0.01" value="0.80">
+                </div>
+                <div class="field">
+                  <label for="vrlaAging">VRLA Aging Factor</label>
+                  <input id="vrlaAging" type="number" step="0.01" value="1.15">
+                </div>
+                <div class="field">
+                  <label for="vrlaReserve">VRLA Reserve Factor</label>
+                  <input id="vrlaReserve" type="number" step="0.01" value="1.05">
+                </div>
+
+                <div class="field">
+                  <label for="ltoUsable">LTO Usable Fraction</label>
+                  <input id="ltoUsable" type="number" step="0.01" value="0.90">
+                </div>
+                <div class="field">
+                  <label for="ltoAging">LTO Aging Factor</label>
+                  <input id="ltoAging" type="number" step="0.01" value="1.10">
+                </div>
+                <div class="field">
+                  <label for="ltoReserve">LTO Reserve Factor</label>
+                  <input id="ltoReserve" type="number" step="0.01" value="1.03">
+                </div>
+              </div>
+
+              <div class="action-row top-gap">
+                <button class="primary-btn" id="calcBtn" type="button">Calculate</button>
+                <button class="ghost-btn" id="sampleBtn" type="button">Load Sample</button>
+                <button class="ghost-btn" id="clearBtn" type="button">Clear Rows</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="section-head">
+            <h3>Load Schedule</h3>
+            <div class="action-row compact-actions">
+              <button class="ghost-btn" id="addRowBtn" type="button">Add Row</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table" id="loadTable">
+              <thead>
+                <tr>
+                  <th>Load Name</th>
+                  <th>Preset</th>
+                  <th>Type</th>
+                  <th>VLL</th>
+                  <th>Ph</th>
+                  <th>Current A</th>
+                  <th>PF</th>
+                  <th>Demand</th>
+                  <th>Factor</th>
+                  <th>Ride Through</th>
+                  <th>Restart on Battery</th>
+                  <th>Run Length ft</th>
+                  <th>Notes</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="loadBody"></tbody>
+            </table>
+          </div>
+
+          <details class="microcopy top-gap">
+            <summary>Suggested generic presets</summary>
+            <p><strong>IT Rack / PDU:</strong> PF 0.98, nonlinear, factor 1.15</p>
+            <p><strong>Server Room Panel:</strong> PF 0.98, nonlinear, demand 0.90, factor 1.15</p>
+            <p><strong>VFD Input:</strong> PF 0.95, nonlinear, factor 1.12</p>
+            <p><strong>Motor Group:</strong> PF 0.85, motor, factor 1.20</p>
+            <p><strong>General Panel:</strong> PF 0.92, linear, demand 0.85, factor 1.10</p>
+            <p><strong>Lighting Panel:</strong> PF 0.95, linear, demand 0.90, factor 1.00</p>
+          </details>
+        </article>
+
+        <article class="card">
+          <div class="section-head">
+            <h3>Results</h3>
+          </div>
+
+          <div class="metric-ribbon">
+            <div class="metric-card">
+              <div class="metric-label">Base Load</div>
+              <div class="metric-value" id="kpiBase">0.0 kVA</div>
+              <div class="metric-note" id="kpiBaseKw">0.0 kW</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Adjusted Design Load</div>
+              <div class="metric-value" id="kpiDesign">0.0 kVA</div>
+              <div class="metric-note" id="kpiDesignKw">0.0 kW</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Recommended Frame</div>
+              <div class="metric-value" id="kpiUps">—</div>
+              <div class="metric-note" id="kpiUpsAmps">—</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Battery Result</div>
+              <div class="metric-value" id="kpiBattery">—</div>
+              <div class="metric-note" id="kpiBatterySub">—</div>
+            </div>
+          </div>
+
+          <details class="microcopy top-gap" open>
+            <summary>Why this recommendation was selected</summary>
+            <div id="decisionNarrative" class="detail-copy">Run the calculation to populate the decision narrative.</div>
+          </details>
+
+          <div class="chart-summary top-gap">
+            <div class="subpanel">
+              <div class="subpanel-title">UPS Frame Comparison</div>
+              <canvas id="upsChart" height="220"></canvas>
+              <div id="frameTable" class="helper-copy top-gap"></div>
+            </div>
+            <div class="subpanel">
+              <div class="subpanel-title">Battery Comparison</div>
+              <canvas id="batteryChart" height="220"></canvas>
+              <div id="batterySummary" class="helper-copy top-gap"></div>
+            </div>
+          </div>
+
+          <div class="chart-summary top-gap">
+            <div class="subpanel">
+              <div class="subpanel-title">Load Composition</div>
+              <canvas id="loadChart" height="220"></canvas>
+            </div>
+            <div class="subpanel">
+              <div class="subpanel-title">Preliminary Feeder / OCPD / RMC</div>
+              <div id="feederSummary" class="helper-copy">Run the calculation to populate feeder screening.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="section-head">
+            <h3>Preliminary Bill of Materials</h3>
+          </div>
+          <div id="bomOutput" class="helper-copy">Run the calculation to generate the preliminary BOM.</div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script src="./ups-sizing.js"></script>
+</body>
+</html>
