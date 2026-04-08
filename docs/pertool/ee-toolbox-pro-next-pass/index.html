@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EE Toolbox Pro</title>
+  <meta name="theme-color" content="#09131d" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">NEC + Electronics + Controls</div>
+        <h1>EE Toolbox Pro</h1>
+        <p class="lead">A practical engineering toolbox with code-style sizing, electronics design helpers, visual plots, and PLC logic simulators.</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="themeToggle" class="ghost-btn" type="button">Switch Theme</button>
+        <button id="exportState" class="ghost-btn" type="button">Export State</button>
+      </div>
+    </header>
+
+    <section class="hero-grid">
+      <article class="hero-card">
+        <div class="pill-row">
+          <span class="pill">Deployable static site</span>
+          <span class="pill">Task-first navigation</span>
+          <span class="pill">Explanations built in</span>
+        </div>
+        <h2 id="sectionTitle">Electrical Code</h2>
+        <p id="sectionSubtitle">Sizing packages and practical field outputs with clear reasoning.</p>
+      </article>
+      <article class="hero-card slim">
+        <div class="stat-label">Saved Projects</div>
+        <div id="savedCount" class="stat-value">0</div>
+        <div class="muted">Tools can save and reload inputs in your browser.</div>
+      </article>
+      <article class="hero-card slim">
+        <div class="stat-label">Available Tools</div>
+        <div id="toolCount" class="stat-value">0</div>
+        <div class="muted">NEC, electronics, visualization, and controls.</div>
+      </article>
+    </section>
+
+    <nav id="sectionNav" class="section-nav" aria-label="Sections"></nav>
+
+    <main class="workspace-grid">
+      <aside class="sidebar card">
+        <div class="card-head">
+          <h3>Tools</h3>
+          <span id="toolFamilyTag" class="tag">Electrical Code</span>
+        </div>
+        <div id="toolNav" class="tool-nav"></div>
+      </aside>
+
+      <section class="main-stage">
+        <article class="card intro-card">
+          <div class="card-head">
+            <h3 id="toolTitle">Branch Circuit Sizer</h3>
+            <span id="toolBadge" class="tag">Explainer included</span>
+          </div>
+          <div class="explain-grid">
+            <div>
+              <div class="explain-label">What this tool does</div>
+              <p id="toolWhat"></p>
+            </div>
+            <div>
+              <div class="explain-label">Why it matters</div>
+              <p id="toolWhy"></p>
+            </div>
+            <div class="full-span">
+              <div class="explain-label">How it works</div>
+              <p id="toolHow"></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div id="toolMount"></div>
+        </article>
+      </section>
+
+      <aside class="report-rail card">
+        <div class="card-head">
+          <h3>Result Ledger</h3>
+          <span class="tag">Session</span>
+        </div>
+        <div id="reportList" class="report-list"></div>
+      </aside>
+    </main>
+  </div>
+
+  <template id="twoColTemplate">
+    <div class="tool-grid">
+      <div class="input-card"></div>
+      <div class="output-card"></div>
+    </div>
+  </template>
+
+  <script src="./app.js"></script>
+</body>
+</html>
