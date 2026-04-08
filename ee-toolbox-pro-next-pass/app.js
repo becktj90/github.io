@@ -51,7 +51,16 @@ const toolDefs = {
   'parallel-wire': { section:'electronics', title:'Parallel Wire Gauge', badge:'Equivalent area', what:'Calculates equivalent circular-mil area for parallel conductors and suggests a nearest standard single conductor.', why:'Parallel runs are much easier to compare when converted back to an equivalent conductor size.', how:'The individual conductor circular-mil area is multiplied by the number of parallels, then compared against standard conductor areas.', render: renderParallelWire },
   'flex-logic': { section:'controls', title:'Flex Logic Simulator', badge:'Function-block style', what:'Builds a practical permissive chain from live input bits and shows the resulting output and Boolean expression.', why:'This makes control logic easier to reason about without needing a full PLC project.', how:'The output is evaluated from a permissive chain with mode, e-stop, overload, start, and auto demand conditions. The explanation updates in plain English.', render: renderFlexLogic },
   'ladder-sim': { section:'controls', title:'Ladder Logic Simulator', badge:'Canvas + timer/counter', what:'Provides an editable ladder training bench with contacts, TON timing, a CTU-style counter, rung power highlighting, and plain-English rung explanations.', why:'It gives you something closer to actual controls troubleshooting than static truth tables.', how:'Each scan evaluates rung continuity, updates a seal-in motor coil, advances a TON timer when its rung is true, increments a counter on rising edges, then redraws the ladder and state table.', render: renderLadderSim },
-  'project-manager': { section:'reference', title:'Project Manager', badge:'Local save', what:'Lets you inspect, reload, and clear locally saved tool states.', why:'Iteration matters. Saved inputs make the site feel like a real workstation rather than a disposable calculator page.', how:'Each tool can store its current inputs under its own key in localStorage. This page shows what is available and lets you export or clear it.', render: renderProjectManager }
+  'project-manager': { section:'reference', title:'Project Manager', badge:'Local save', what:'Lets you inspect, reload, and clear locally saved tool states.', why:'Iteration matters. Saved inputs make the site feel like a real workstation rather than a disposable calculator page.', how:'Each tool can store its current inputs under its own key in localStorage. This page shows what is available and lets you export or clear it.', render: renderProjectManager },
+  'ups-sizing': {
+    section:'power',
+    title:'UPS Sizing Workbench',
+    badge:'Pro',
+    what:'Designs and compares UPS options for three-phase systems, including runtime-based battery sizing, load mix evaluation, Toshiba G9000 frame selection, and preliminary feeder screening.',
+    why:'UPS sizing is driven by kVA, kW, runtime, load behavior, and engineering margin. This tool turns those interacting requirements into a practical concept-level design package.',
+    how:'The tool converts load schedule entries into base and adjusted demand, applies category factors for linear, nonlinear, and motor loads, compares VRLA and LTO battery assumptions, and screens frame size, feeder current, OCPD, and conduit.',
+    render: () => { window.location.href = './ups-sizing.html'; }
+  }
 };
 
 let activeTheme = load(THEME_KEY, 'blueprint');
