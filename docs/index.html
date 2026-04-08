@@ -1,144 +1,138 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Engineer Reference Lab</title>
-  <meta name="theme-color" content="#eef2f7" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Retro Glossary</title>
+  <style>
+    :root{
+      --bg:#05070a;
+      --fg:#b7ff3c;
+      --muted:#72c64a;
+      --panel: rgba(15, 28, 12, .75);
+      --border: rgba(183, 255, 60, .35);
+      --glow: rgba(183, 255, 60, .35);
+      --link:#b7ff3c;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    .scanlines{
+      position:fixed; inset:0; pointer-events:none;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.05),
+        rgba(0,0,0,0.05) 2px,
+        rgba(0,0,0,0.00) 4px
+      );
+      opacity:.35;
+      mix-blend-mode: overlay;
+    }
+    header{
+      padding:28px 18px 14px;
+      border-bottom:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(183,255,60,.10), rgba(183,255,60,0));
+    }
+    .title{
+      display:flex; flex-wrap:wrap; gap:14px; align-items:baseline;
+    }
+    .brand, .brand2{
+      letter-spacing:.12em;
+      font-weight:900;
+      text-transform:uppercase;
+    }
+    .brand{
+      color: var(--fg);
+      text-shadow: 0 0 12px var(--glow);
+      font-size: clamp(26px, 4vw, 38px);
+    }
+    .brand2{
+      color: var(--muted);
+      font-size: clamp(20px, 3.3vw, 32px);
+    }
+    .subtitle{
+      margin-top:8px;
+      color: rgba(183,255,60,.85);
+    }
+    .wrap{
+      max-width:1000px;
+      margin:0 auto;
+      padding:18px;
+    }
+    .card{
+      background: var(--panel);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:18px;
+      box-shadow: 0 0 22px rgba(183,255,60,.06);
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size:22px;
+    }
+    .hint{
+      margin:0 0 16px;
+      color: rgba(183,255,60,.82);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap:12px;
+    }
+    a.tool{
+      display:block;
+      padding:14px;
+      border:1px solid rgba(183,255,60,.35);
+      border-radius:10px;
+      text-decoration:none;
+      color: var(--link);
+      background: rgba(0,0,0,.15);
+      transition: transform .08s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    a.tool:hover{
+      transform: translateY(-2px);
+      border-color: rgba(183,255,60,.75);
+      box-shadow: 0 0 18px rgba(183,255,60,.18);
+    }
+    .tool-name{ font-weight:900; margin-bottom:6px; }
+    .tool-meta{ color: rgba(183,255,60,.75); font-size:12px; word-break:break-word; }
+    footer{
+      margin-top:16px;
+      padding:8px 2px 0;
+      color: rgba(183,255,60,.75);
+    }
+  </style>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="topbar">
-      <div class="brand-unit">
-        <div class="eyebrow">Engineer Reference Lab</div>
-        <h1>Practical engineering glossary and calculators</h1>
-        <p class="lead">A durable browser-based reference system for electrical design, power calculations, electronics bench work, controls logic, and optimization studies. Browse it like a glossary, then open the calculator or explainer you need.</p>
-      </div>
-      <div class="topbar-actions">
-        <button id="themeToggle" class="ghost-btn" type="button">Use Retro Accent Theme</button>
-        <button id="exportState" class="ghost-btn" type="button">Export Workspace</button>
-        <button id="importState" class="ghost-btn" type="button">Import Workspace</button>
-        <input id="importFile" type="file" accept="application/json" hidden />
-      </div>
-    </header>
+  <div class="scanlines"></div>
 
-    <section class="hero-grid">
-      <article class="hero-card hero-main">
-        <div class="pill-row">
-          <span class="pill">Reference-first</span>
-          <span class="pill">Working calculators</span>
-          <span class="pill">Built to expand</span>
-        </div>
-        <h2 id="sectionTitle">Electrical Code</h2>
-        <p id="sectionSubtitle">Use the glossary rail on the left to search by topic, then launch the selected tool in the main workspace.</p>
-      </article>
-      <article class="hero-card slim stat-card">
-        <div class="stat-label">Saved Inputs</div>
-        <div id="savedCount" class="stat-value">0</div>
-        <div class="muted">Persist practical scenarios locally while you compare design options.</div>
-      </article>
-      <article class="hero-card slim stat-card">
-        <div class="stat-label">Reference Entries</div>
-        <div id="toolCount" class="stat-value">0</div>
-        <div class="muted">Searchable calculators, explainers, and visual engineering helpers.</div>
-      </article>
+  <header>
+    <div class="title">
+      <div class="brand">RETRO</div>
+      <div class="brand2">GLOSSARY</div>
+    </div>
+    <div class="subtitle">Select a term to jump to a tool.</div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <h2>Tools</h2>
+      <p class="hint">Published by folder (GitHub Pages).</p>
+
+      <div class="grid">
+        <!-- Tool link(s). Currently detected tool page(s): ee-toolbox-pro-next-pass -->
+        <a class="tool" href="./ee-toolbox-pro-next-pass/">
+          <div class="tool-name">EE Toolbox Pro (Next Pass)</div>
+          <div class="tool-meta">ee-toolbox-pro-next-pass</div>
+        </a>
+      </div>
     </section>
 
-    <div class="workspace-grid">
-      <aside class="sidebar card nav-panel">
-        <div class="rail-heading">
-          <div>
-            <div class="mini-label">Glossary</div>
-            <h3>Browse by topic</h3>
-          </div>
-          <span class="tag">Linked tools</span>
-        </div>
-        <div class="nav-search">
-          <input id="toolSearch" type="search" placeholder="Search glossary, calculators, topics" autocomplete="off" />
-        </div>
-        <div id="sectionNav" class="section-nav" aria-label="Sections"></div>
-        <div id="groupNav" class="group-nav"></div>
-        <div id="toolNav" class="tool-nav"></div>
-        <div class="rail-note">Tip: this left rail is the glossary index. Click any entry to open its calculator, decoder, optimizer, or explainer.</div>
-      </aside>
-
-      <section class="main-stage">
-        <article class="card intro-card">
-          <div class="card-head">
-            <div>
-              <div class="mini-label">Selected entry</div>
-              <h3 id="toolTitle">Branch Circuit Sizer</h3>
-              <p id="toolBadge" class="tag">Explainer included</p>
-              <div id="toolTags" class="tag-row"></div>
-            </div>
-            <div class="tool-context">
-              <div class="context-pill">Calculator workspace</div>
-              <div class="context-pill" id="toolFamilyTag">Electrical Code</div>
-            </div>
-          </div>
-          <div class="explain-grid">
-            <div>
-              <div class="explain-label">What this entry does</div>
-              <p id="toolWhat"></p>
-            </div>
-            <div>
-              <div class="explain-label">Why it matters</div>
-              <p id="toolWhy"></p>
-            </div>
-            <div class="full-span">
-              <div class="explain-label">Method</div>
-              <p id="toolHow"></p>
-            </div>
-          </div>
-        </article>
-
-        <article class="card workspace-card">
-          <div class="workspace-head">
-            <div>
-              <div class="mini-label">Active tool</div>
-              <h3>Interactive calculator and results</h3>
-            </div>
-            <div class="workspace-actions"><button id="favoriteToggle" class="secondary-btn" type="button">Pin Tool</button><button id="copyLink" class="secondary-btn" type="button">Copy Deep Link</button><a class="text-link" href="./ups-sizing.html">Open UPS sizing page</a></div>
-          </div>
-          <div id="toolMount"></div>
-        </article>
-      </section>
-
-      <aside class="report-rail card">
-        <div class="card-head">
-          <div>
-            <div class="mini-label">Workspace feed</div>
-            <h3>Result ledger</h3>
-          </div>
-          <span class="tag">Session</span>
-        </div>
-        <div class="quick-links">
-          <div class="rail-block">
-            <div class="mini-label">Pinned</div>
-            <div id="favoritesList" class="mini-tool-list"></div>
-          </div>
-          <div class="rail-block">
-            <div class="mini-label">Recent</div>
-            <div id="recentList" class="mini-tool-list"></div>
-          </div>
-          <a class="quick-link" href="./ups-sizing.html">
-            <strong>UPS Sizing</strong>
-            <span>Open the dedicated UPS package workflow included in the repo.</span>
-          </a>
-          <a class="quick-link" href="./README_DEPLOY.txt">
-            <strong>Deploy Notes</strong>
-            <span>Reference the included deployment instructions for GitHub Pages.</span>
-          </a>
-        </div>
-        <div class="rail-meta"><span class="mini-label">Tool key</span><code id="activeToolId"></code></div><div id="reportList" class="report-list"></div>
-      </aside>
-    </div>
-  </div>
-
-  <script type="module" src="./js/app.js"></script>
+    <footer>Built for GitHub Pages • Retro mode: ON</footer>
+  </main>
 </body>
 </html>
